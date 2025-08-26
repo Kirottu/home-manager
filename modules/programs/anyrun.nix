@@ -127,14 +127,6 @@ in
           '';
         };
 
-        margin = mkOption {
-          type = int;
-          default = 0;
-          description = ''
-            Add a margin around the window to allow for CSS shadow styling.
-          '';
-        };
-
         hideIcons = mkOption {
           type = bool;
           default = false;
@@ -181,11 +173,72 @@ in
           default = null;
           description = "Limit amount of entries shown in total.";
         };
+
+        keybinds = mkOption {
+          type = listOf (submodule {
+            options = {
+              key = lib.mkOption {
+                type = str;
+                description = "The GDK key to use for the bind";
+              };
+              action = lib.mkOption {
+                type = enum [
+                  "close"
+                  "select"
+                  "up"
+                  "down"
+                ];
+                description = "The Anyrun action to perform";
+              };
+              ctrl = lib.mkOption {
+                type = bool;
+                default = false;
+                description = "Whether or not Ctrl needs to be pressed";
+              };
+              alt = lib.mkOption {
+                type = bool;
+                default = false;
+                description = "Whether or not Alt needs to be pressed";
+              };
+            };
+          });
+          default = [
+            {
+              key = "Return";
+              action = "select";
+            }
+            {
+              key = "Escape";
+              action = "Close";
+            }
+            {
+              key = "Down";
+              action = "down";
+            }
+            {
+              key = "Up";
+              action = "up";
+            }
+          ];
+          description = "List of keybinds that Anyrun uses";
+          example = ''
+            [
+              {
+                key = "Escape";
+                action = "close";
+              }
+              {
+                key = "Return";
+                action = "select";
+              }
+            ]
+          '';
+        };
       };
 
     extraCss = mkOption {
       type = nullOr lines;
-      default = "";
+      default = null;
       description = ''
         Extra CSS lines to add to {file}`~/.config/anyrun/style.css`.
       '';
@@ -261,25 +314,38 @@ in
         (mapAttrs' (name: value: nameValuePair ("anyrun/" + name) value) cfg.extraConfigFiles)
 
         {
-          "anyrun/config.ron".text = ''
-            Config(
-              x: ${stringifyNumeric cfg.config.x},
-              y: ${stringifyNumeric cfg.config.y},
-              width: ${stringifyNumeric cfg.config.width},
-              height: ${stringifyNumeric cfg.config.height},
-              margin: ${toString cfg.config.margin},
-              hide_icons: ${boolToString cfg.config.hideIcons},
-              ignore_exclusive_zones: ${boolToString cfg.config.ignoreExclusiveZones},
-              layer: ${capitalize cfg.config.layer},
-              hide_plugin_info: ${boolToString cfg.config.hidePluginInfo},
-              close_on_click: ${boolToString cfg.config.closeOnClick},
-              show_results_immediately: ${boolToString cfg.config.showResultsImmediately},
-              max_entries: ${
-                if cfg.config.maxEntries == null then "None" else "Some(${toString cfg.config.maxEntries})"
-              },
-              plugins: ${toJSON parsedPlugins},
-            )
-          '';
+          "anyrun/config.ron".text =
+            let
+              keybind = keybind: ''
+                Keybind(
+                  key: "${keybind.key}",
+                  action: "${keybind.action}",
+                  ctrl: ${boolToString keybind.ctrl},
+                  alt: ${boolToString keybind.alt},
+                ),
+              '';
+            in
+            ''
+              Config(
+                x: ${stringifyNumeric cfg.config.x},
+                y: ${stringifyNumeric cfg.config.y},
+                width: ${stringifyNumeric cfg.config.width},
+                height: ${stringifyNumeric cfg.config.height},
+                hide_icons: ${boolToString cfg.config.hideIcons},
+                ignore_exclusive_zones: ${boolToString cfg.config.ignoreExclusiveZones},
+                layer: ${capitalize cfg.config.layer},
+                hide_plugin_info: ${boolToString cfg.config.hidePluginInfo},
+                close_on_click: ${boolToString cfg.config.closeOnClick},
+                show_results_immediately: ${boolToString cfg.config.showResultsImmediately},
+                max_entries: ${
+                  if cfg.config.maxEntries == null then "None" else "Some(${toString cfg.config.maxEntries})"
+                },
+                plugins: ${toJSON parsedPlugins},
+                keybinds: [
+                  ${builtins.map (bind: keybind bind) cfg.keybinds}
+                ],
+              )
+            '';
         }
 
         {

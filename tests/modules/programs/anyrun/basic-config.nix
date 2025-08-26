@@ -72,7 +72,6 @@
         y: Fraction(0.020000),
         width: Absolute(800),
         height: Absolute(0),
-        margin: 0,
         hide_icons: false,
         ignore_exclusive_zones: false,
         layer: Overlay,
@@ -81,6 +80,24 @@
         show_results_immediately: false,
         max_entries: Some(10),
         plugins: ["@applications@/lib/libapplications.so"],
+        keybinds: [
+          Keybind(
+            key: "Return",
+            action: Select,
+          ),
+          Keybind(
+            key: "Up",
+            action: Up,
+          ),
+          Keybind(
+            key: "Down",
+            action: Down,
+          ),
+          Keybind(
+            key: "Escape",
+            action: Close,
+          ),
+        ],
       )
     ''}
   '';
