@@ -81,22 +81,31 @@
         max_entries: Some(10),
         plugins: ["@applications@/lib/libapplications.so"],
         keybinds: [
-          Keybind(
-            key: "Return",
-            action: Select,
-          ),
-          Keybind(
-            key: "Up",
-            action: Up,
-          ),
-          Keybind(
-            key: "Down",
-            action: Down,
-          ),
-          Keybind(
-            key: "Escape",
-            action: Close,
-          ),
+      Keybind(
+        key: "Return",
+        action: Select,
+        ctrl: false,
+        alt: false,
+      ),
+      Keybind(
+        key: "Escape",
+        action: Close,
+        ctrl: false,
+        alt: false,
+      ),
+      Keybind(
+        key: "Down",
+        action: Down,
+        ctrl: false,
+        alt: false,
+      ),
+      Keybind(
+        key: "Up",
+        action: Up,
+        ctrl: false,
+        alt: false,
+      ),
+
         ],
       )
     ''}

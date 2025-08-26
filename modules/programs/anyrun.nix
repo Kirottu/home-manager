@@ -183,10 +183,10 @@ in
               };
               action = lib.mkOption {
                 type = enum [
-                  "close"
-                  "select"
-                  "up"
-                  "down"
+                  "Close"
+                  "Select"
+                  "Up"
+                  "Down"
                 ];
                 description = "The Anyrun action to perform";
               };
@@ -205,7 +205,7 @@ in
           default = [
             {
               key = "Return";
-              action = "select";
+              action = "Select";
             }
             {
               key = "Escape";
@@ -213,11 +213,11 @@ in
             }
             {
               key = "Down";
-              action = "down";
+              action = "Down";
             }
             {
               key = "Up";
-              action = "up";
+              action = "Up";
             }
           ];
           description = "List of keybinds that Anyrun uses";
@@ -225,11 +225,11 @@ in
             [
               {
                 key = "Escape";
-                action = "close";
+                action = "Close";
               }
               {
                 key = "Return";
-                action = "select";
+                action = "Select";
               }
             ]
           '';
@@ -319,7 +319,7 @@ in
               keybind = keybind: ''
                 Keybind(
                   key: "${keybind.key}",
-                  action: "${keybind.action}",
+                  action: ${keybind.action},
                   ctrl: ${boolToString keybind.ctrl},
                   alt: ${boolToString keybind.alt},
                 ),
@@ -342,7 +342,7 @@ in
                 },
                 plugins: ${toJSON parsedPlugins},
                 keybinds: [
-                  ${builtins.map (bind: keybind bind) cfg.keybinds}
+              ${lib.concatStrings (builtins.map (bind: keybind bind) cfg.config.keybinds)}
                 ],
               )
             '';
